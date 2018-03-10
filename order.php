@@ -14,65 +14,69 @@ $comment = $_POST['comment'];
 $payment = $_POST['payment'] == "on" ? "Потребуется сдача" : "Оплата картой";
 $callback = isset($_POST['callback']) ? "Не перезвонить" : "Перезвонить";
 
-//if (!empty($email)) {
-//    $prepare = $pdo->prepare("select email , id from clients");
-//    $prepare->execute([]);
-//    $findMail = $prepare->fetchAll(PDO::FETCH_ASSOC);
-//    foreach ($findMail as $item) {
-//        echo "<pre>";
-////        print_r($item);
-//        foreach ($item as $key) {
-//
-////            if ($key == $email) {
-////                echo $key;
-////                echo "Вы уже зарегистрированы";
-////                $prepare = $pdo->prepare("select id from clients WHERE email = :email");
-////                $prepare->execute(['email' =>$key]);
-////                $findId = $prepare->fetch(PDO::FETCH_ASSOC);
-////                $id = $findId['id'];
-////                break 2;
-////            }else {
-////                $prepare = $pdo->prepare("INSERT INTO clients (name, email,phone) VALUES (:name, :email,:phone )");
-////                $prepare->execute(['name' => $name, 'email' => $email, 'phone' => $phone]);
-////                $prepare = $pdo->prepare("select id from clients WHERE email = :email");
-////                $prepare->execute(['email' =>$key]);
-////                $findId = $prepare->fetch(PDO::FETCH_ASSOC);
-////                $id = $findId['id'];
-////            }
-//
-//        }
-//    }
-//}
-
-
+if (!empty($email)) {
+    $prepare = $pdo->prepare("select email, id from clients");
+    $prepare->execute([]);
+    $findMail = $prepare->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($findMail as $item) {
+        echo "<pre>";
+//        print_r($item);
+        foreach ($item as $key) {
+            if ($key == $email) {
+                echo "Вы уже зарегистрированы";
+                $prepare = $pdo->prepare("select id from clients WHERE email = :email");
+                $prepare->execute(['email' => $key]);
+                $findId = $prepare->fetch(PDO::FETCH_ASSOC);
+                $id = $findId['id'];
+                break 2;
+            }
+        }
+    }
+}
 
 $prepare = $pdo->prepare("INSERT INTO clients (name, email,phone) VALUES (:name, :email,:phone )");
 $prepare->execute(['name' => $name, 'email' => $email, 'phone' => $phone]);
-$prepare = $pdo->prepare("INSERT INTO burgers (street, home,part,aprt,floor,comment,payment,callback) 
-VALUES (:street, :home, :part, :aprt, :floor, :comment, :payment, :callback)");
-$prepare->execute([ 'street' => $street, 'home' => $home, 'part' => $part, 'aprt' => $aprt, 'floor' => $floor, 'comment' => $comment, 'payment' => $payment, 'callback' => $callback]);
+
+if (!$id) {
+
+    $prepare = $pdo->prepare("select id from clients WHERE email = :email");
+    $prepare->execute(['email' => $email]);
+    $findId = $prepare->fetch(PDO::FETCH_ASSOC);
+    $id = $findId['id'];
+    $newId = $id ;
+}
+
+$prepare = $pdo->prepare("INSERT INTO burgers (user_id, street, home,part,aprt,floor,comment,payment,callback) 
+VALUES (:user_id, :street, :home, :part, :aprt, :floor, :comment, :payment, :callback)");
+$prepare->execute(['user_id' => $id, 'street' => $street, 'home' => $home, 'part' =>
+    $part, 'aprt' => $aprt, 'floor' => $floor, 'comment' => $comment, 'payment' => $payment, 'callback' => $callback]);
 $prepare = $pdo->prepare("select id , street , home , part , aprt , floor  from burgers WHERE home = :home ");
 $prepare->execute(['home' => $home]);
 $data = $prepare->fetch(PDO::FETCH_ASSOC);
 
-$arr = './order.csv';
-file_put_contents('order.csv', implode(";", $data));
+$order = $data['id'];
+$street = $data['street'];
+$home = $data['home'];
+$part = $data['part'];
+$aprt = $data['aprt'];
+$floor = $data['floor'];
 
-$mail = "alex-sert2010@mail.ru";
+$prepare = $pdo->prepare("select user_id from burgers WHERE user_id = $id ");
+$prepare->execute();
+$orders = $prepare->fetchAll(PDO::FETCH_ASSOC);
+$numOrders = count($orders);
+
+isset($newId) ? $str = 'Спасибо это Ваш первый заказ' : $str = "Спасибо, это уже $numOrders заказ" ;
+
 $subject = "order";
 $message = "
-<html>
-
-<body>
-  <p>Заказ номер $id </p>
-  <p>Ваш заказ будет доставлен по адресу: </p>
+  <p>Заказ номер $order </p>
+  <p>Ваш заказ будет доставлен по адресу: улица: $street дом: $home корпус: $part квартира: $aprt этаж: $floor  </p>
   <p>DarkBeefBurger за 500 рублей, 1 шт</p> 
-  <p>Спасибо - это ваш первый заказ</p> 
-  
-</body>
-</html>
+  <p>$str</p>   
 ";
-mail($mail, $subject, $message);
+echo $message ;
+mail($email, $subject, $message);
 
 
 
