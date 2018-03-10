@@ -50,9 +50,11 @@ $prepare = $pdo->prepare("INSERT INTO burgers (user_id, street, home,part,aprt,f
 VALUES (:user_id, :street, :home, :part, :aprt, :floor, :comment, :payment, :callback)");
 $prepare->execute(['user_id' => $id, 'street' => $street, 'home' => $home, 'part' =>
     $part, 'aprt' => $aprt, 'floor' => $floor, 'comment' => $comment, 'payment' => $payment, 'callback' => $callback]);
-$prepare = $pdo->prepare("select id , street , home , part , aprt , floor  from burgers WHERE home = :home ");
-$prepare->execute(['home' => $home]);
-$data = $prepare->fetch(PDO::FETCH_ASSOC);
+$prepare = $pdo->prepare("select id , street , home , part , aprt , floor  from burgers WHERE user_id = :user_id ");
+$prepare->execute(['user_id' => $id]);
+$dataClient = $prepare->fetchAll(PDO::FETCH_ASSOC);
+$data = $dataClient[count($dataClient)-1];
+
 
 $order = $data['id'];
 $street = $data['street'];
@@ -61,12 +63,14 @@ $part = $data['part'];
 $aprt = $data['aprt'];
 $floor = $data['floor'];
 
+
 $prepare = $pdo->prepare("select user_id from burgers WHERE user_id = $id ");
 $prepare->execute();
 $orders = $prepare->fetchAll(PDO::FETCH_ASSOC);
 $numOrders = count($orders);
 
 isset($newId) ? $str = 'Спасибо это Ваш первый заказ' : $str = "Спасибо, это уже $numOrders заказ" ;
+
 
 $subject = "order";
 $message = "
