@@ -1,7 +1,5 @@
 <?php
-include_once 'keys.php';
 include_once 'pdoConect.php';
-
 
 function pdoQuery($sql, $params = [])
 {
