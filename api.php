@@ -1,15 +1,7 @@
 <?php
 include_once 'keys.php';
+include_once 'pdoConect.php';
 
-function pdoConnect()
-{
-    static $pdo;
-    if ($pdo === null) {
-        $dsn = "mysql:host=localhost;dbname=test;charset=utf8";
-        $pdo = new PDO($dsn, 'root', 'mars100');
-    }
-    return $pdo;
-}
 
 function pdoQuery($sql, $params = [])
 {
