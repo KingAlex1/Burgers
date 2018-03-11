@@ -1,6 +1,5 @@
 <?php
-$dsn = "mysql:host=localhost;dbname=test;charset=utf8";
-$pdo = new PDO($dsn, 'root', 'mars100');
+include_once('api.php');
 
 $name = $_POST['name'];
 $phone = $_POST['phone'];
@@ -15,17 +14,13 @@ $payment = $_POST['payment'] == "on" ? "Потребуется сдача" : "О
 $callback = isset($_POST['callback']) ? "Не перезвонить" : "Перезвонить";
 
 if (!empty($email)) {
-    $prepare = $pdo->prepare("select email, id from clients");
-    $prepare->execute([]);
+    $prepare = pdoQuery("select email, id from clients");
     $findMail = $prepare->fetchAll(PDO::FETCH_ASSOC);
     foreach ($findMail as $item) {
-        echo "<pre>";
-//        print_r($item);
         foreach ($item as $key) {
             if ($key == $email) {
                 echo "Вы уже зарегистрированы";
-                $prepare = $pdo->prepare("select id from clients WHERE email = :email");
-                $prepare->execute(['email' => $key]);
+                $prepare = pdoQuery("select id from clients WHERE email = :email", ['email' => $key]);
                 $findId = $prepare->fetch(PDO::FETCH_ASSOC);
                 $id = $findId['id'];
                 break 2;
@@ -34,27 +29,22 @@ if (!empty($email)) {
     }
 }
 
-$prepare = $pdo->prepare("INSERT INTO clients (name, email,phone) VALUES (:name, :email,:phone )");
-$prepare->execute(['name' => $name, 'email' => $email, 'phone' => $phone]);
+$prepare = pdoQuery("INSERT INTO clients (name, email,phone) VALUES (:name, :email,:phone )", ['name' => $name, 'email' => $email, 'phone' => $phone]);
 
 if (!$id) {
-
-    $prepare = $pdo->prepare("select id from clients WHERE email = :email");
-    $prepare->execute(['email' => $email]);
+    $prepare = pdoQuery("select id from clients WHERE email = :email", ['email' => $email]);
     $findId = $prepare->fetch(PDO::FETCH_ASSOC);
     $id = $findId['id'];
-    $newId = $id ;
+    $newId = $id;
 }
 
-$prepare = $pdo->prepare("INSERT INTO burgers (user_id, street, home,part,aprt,floor,comment,payment,callback) 
-VALUES (:user_id, :street, :home, :part, :aprt, :floor, :comment, :payment, :callback)");
-$prepare->execute(['user_id' => $id, 'street' => $street, 'home' => $home, 'part' =>
+$prepare = pdoQuery("INSERT INTO burgers (user_id, street, home,part,aprt,floor,comment,payment,callback) 
+VALUES (:user_id, :street, :home, :part, :aprt, :floor, :comment, :payment, :callback)",
+    ['user_id' => $id, 'street' => $street, 'home' => $home, 'part' =>
     $part, 'aprt' => $aprt, 'floor' => $floor, 'comment' => $comment, 'payment' => $payment, 'callback' => $callback]);
-$prepare = $pdo->prepare("select id , street , home , part , aprt , floor  from burgers WHERE user_id = :user_id ");
-$prepare->execute(['user_id' => $id]);
+$prepare = pdoQuery("select id , street , home , part , aprt , floor  from burgers WHERE user_id = :user_id ",['user_id' => $id]);
 $dataClient = $prepare->fetchAll(PDO::FETCH_ASSOC);
-$data = $dataClient[count($dataClient)-1];
-
+$data = $dataClient[count($dataClient) - 1];
 
 $order = $data['id'];
 $street = $data['street'];
@@ -63,14 +53,11 @@ $part = $data['part'];
 $aprt = $data['aprt'];
 $floor = $data['floor'];
 
-
-$prepare = $pdo->prepare("select user_id from burgers WHERE user_id = $id ");
-$prepare->execute();
+$prepare = pdoQuery("select user_id from burgers WHERE user_id = $id");
 $orders = $prepare->fetchAll(PDO::FETCH_ASSOC);
 $numOrders = count($orders);
 
-isset($newId) ? $str = 'Спасибо это Ваш первый заказ' : $str = "Спасибо, это уже $numOrders заказ" ;
-
+isset($newId) ? $str = 'Спасибо это Ваш первый заказ' : $str = "Спасибо, это уже $numOrders заказ";
 
 $subject = "order";
 $message = "
@@ -79,7 +66,7 @@ $message = "
   <p>DarkBeefBurger за 500 рублей, 1 шт</p> 
   <p>$str</p>   
 ";
-echo $message ;
+echo $message;
 mail($email, $subject, $message);
 
 
