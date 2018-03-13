@@ -1,5 +1,5 @@
 <?php
-include_once('api.php');
+include_once('./PHP/api.php');
 // начинаем работать с сессией
 session_start();
 
@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_URI'] == "/") {
 
 // добавляем в базу
 if (!empty($_POST) && $_SERVER['REQUEST_URI'] == "/order/add") {
-    require_once($appDir . DIRECTORY_SEPARATOR . 'app.php');
+    require_once($appDir . DIRECTORY_SEPARATOR . './PHP/app.php');
     return 0;
 }
 

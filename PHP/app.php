@@ -32,7 +32,7 @@ $message = "
   <p>$str</p>";
 echo $message;
 echo "<p>Ваш заказ отправлен на почту: {$data['email']}</p>";
-echo "<a href=\"index.html\">Назад</a>";
+echo "<a href=\"../index.html\">Назад</a>";
 mail($data['email'], $subject, $message);
 
 ?>

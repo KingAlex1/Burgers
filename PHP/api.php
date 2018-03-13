@@ -1,19 +1,15 @@
 <?php
 
-
 function pdoConnect()
 {
-
     static $pdo;
     if ($pdo === null) {
-        include ('config.example.php');
+        include('config.example.php');
         $dsn = "mysql:host={$config['hostname']};dbname={$config['dbname']};charset=utf8";
         $pdo = new PDO($dsn, $config['dbuser'], $config['dbpassword']);
     }
     return $pdo;
 }
-
-
 
 function pdoQuery($sql, $params = [])
 {
