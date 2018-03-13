@@ -1,8 +1,23 @@
 <?php
-include_once 'pdoConect.php';
+
+
+function pdoConnect()
+{
+
+    static $pdo;
+    if ($pdo === null) {
+        include ('config.example.php');
+        $dsn = "mysql:host={$config['hostname']};dbname={$config['dbname']};charset=utf8";
+        $pdo = new PDO($dsn, $config['dbuser'], $config['dbpassword']);
+    }
+    return $pdo;
+}
+
+
 
 function pdoQuery($sql, $params = [])
 {
+
     $pdo = pdoConnect();
     $prepare = $pdo->prepare($sql);
     $prepare->execute($params);
@@ -21,15 +36,14 @@ function clearDataBeforeInsert($data)
         'aprt',
         'floor',
         'comment',
-        'payment'
+        'payment',
+        'callback'
     ];
 
     $result = [];
     foreach ($keys as $value) {
-        if ($value == 'payment') {
-            $result[$value] = (!empty($data[$value])) ? "Не перезванимать" : "Перезвонить";
-        } elseif ($value == 'comment') {
-            $result[$value] = (!empty($data[$value])) ? "Потребуется сдача" : "Оплата картой";
+        if ($value == 'callback') {
+            $result[$value] = (!empty($data[$value])) ? "Не перезванивать" : "Перезвонить";
         } else {
             $result[$value] = (!empty($data[$value])) ? trim($data[$value]) : null;
         }
@@ -37,7 +51,7 @@ function clearDataBeforeInsert($data)
     return $result;
 }
 
-function authorization($email,$sqlMailId, $sqlId )
+function authorization($email, $sqlMailId, $sqlId)
 {
     if (!empty($email)) {
         $prepare = pdoQuery($sqlMailId);
@@ -45,8 +59,7 @@ function authorization($email,$sqlMailId, $sqlId )
         foreach ($findMail as $item) {
             foreach ($item as $key) {
                 if ($key == $email) {
-                    echo "Вы уже зарегистрированы";
-                    $prepare = pdoQuery($sqlId , ['email' => $key]);
+                    $prepare = pdoQuery($sqlId, ['email' => $key]);
                     $findId = $prepare->fetch(PDO::FETCH_ASSOC);
                     $id = $findId['id'];
                     return $id;

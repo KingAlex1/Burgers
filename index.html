@@ -366,7 +366,8 @@
           <div class="container">
             <div class="section__title">Закажите доставку</div>
             <div class="order__form">
-              <form method="POST" action="order.php" class="order__form-tag" id="order-form">
+              <form method="POST" action="app.php" class="order__form-tag"
+                    id="order-form">
                 <div class="order__form-col">
                   <div class="order__form-row order__form-row_double">
                     <label class="order__form-block">
@@ -418,12 +419,14 @@
                   <div class="order__form-buttons">
                     <div class="order__form-row">
                       <label class="order__radio">
-                        <input class="order__radio-elem" name="payment" type="radio">
+                        <input class="order__radio-elem" name="payment" type="radio"
+                               value="cash">
                         <div class="order__radio-fake"></div>
                         <div class="order__radio-title">Потребуется сдача</div>
                       </label>
                       <label class="order__radio">
-                        <input class="order__radio-elem" name="payment" type="radio">
+                        <input class="order__radio-elem" name="payment" type="radio"
+                               value="card">
                         <div class="order__radio-fake"></div>
                         <div class="order__radio-title">Оплата по карте</div>
                       </label>
@@ -449,7 +452,8 @@
           <div class="yandex-map" id="map"></div>
           <footer class="footer">
             <div class="container">
-              <div class="footer__address">Санкт-Петербург, ул.Бабушкина, д.12/1, 15</div><a class="footer__phone" href="tel:+78123771377">+7 (812) 377-13-77</a>
+              <div class="footer__address">Москва, ул.Бабушкина, д.12/1, 15</div><a
+                    class="footer__phone" href="tel:+78123771377">+7 (812) 377-13-77</a>
             </div>
           </footer>
         </section>

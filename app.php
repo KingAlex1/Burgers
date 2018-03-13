@@ -14,37 +14,36 @@ VALUES (:user_id, :street, :home, :part, :aprt, :floor, :comment, :payment, :cal
     ['user_id' => $id, 'street' => $data['street'], 'home' => $data['home'], 'part' =>
         $data['part'], 'aprt' => $data['aprt'], 'floor' => $data['floor'], 'comment' =>
         $data['comment'], 'payment' => $data['payment'], 'callback' => $data['callback']]);
-$prepare = pdoQuery("SELECT id , street , home , part , aprt , floor  FROM burgers WHERE user_id = :user_id ", ['user_id' => $id]);
+$prepare = pdoQuery("SELECT id , street , home , part , aprt , floor   FROM burgers WHERE user_id = :user_id ", ['user_id' => $id]);
 $dataClient = $prepare->fetchAll(PDO::FETCH_ASSOC);
-$data = $dataClient[count($dataClient) - 1];
+$info = $dataClient[count($dataClient) - 1];
 
 $prepare = pdoQuery("SELECT user_id FROM burgers WHERE user_id = $id");
 $orders = $prepare->fetchAll(PDO::FETCH_ASSOC);
 $numOrders = count($orders);
 
-isset($newId) ? $str = 'Спасибо это Ваш первый заказ' : $str = "Спасибо, это уже $numOrders заказ";
+isset($newId) ? $str = 'Спасибо это Ваш первый заказ' : $str = "Спасибо, это уже $numOrders заказ !!!";
 
 $subject = "order";
 $message = "
-  <p>Заказ номер {$data['id']} </p>
-  <p>Ваш заказ будет доставлен по адресу: улица: {$data['street']} дом: {$data['home']} корпус:  {$data['part']} квартира: {$data['aprt']} этаж: {$data['floor']}  </p>
+  <p>Заказ номер: {$info['id']} </p>
+  <p>Ваш заказ будет доставлен по адресу: улица {$info['street']} дом {$info['home']} корпус  {$info['part']} квартира {$info['aprt']} этаж  {$info['floor']}  </p>
   <p>DarkBeefBurger за 500 рублей, 1 шт</p> 
-  <p>$str</p>   
-";
+  <p>$str</p>";
 echo $message;
+echo "<p>Ваш заказ отправлен на почту: {$data['email']}</p>";
+echo "<a href=\"index.html\">Назад</a>";
 mail($data['email'], $subject, $message);
 
-$prepare = pdoQuery("SELECT id FROM clients ");
-$clients = $prepare->fetchAll(PDO::FETCH_ASSOC);
-$numClients = count($clients);
-$prepare = pdoQuery("SELECT id FROM burgers");
-$burgs = $prepare->fetchAll(PDO::FETCH_ASSOC);
-$allBurgers = count($burgs);
+?>
 
-echo "Всего клиентов: " . $numClients . "<br>";
-echo "Всего заказов:" . $allBurgers . "<br>";
-
-
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
 
 
 
